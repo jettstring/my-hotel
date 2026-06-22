@@ -52,8 +52,7 @@ end
 
 function Plot:_Setup()
 	local owner: Player = self.Owner
-	local PlotModel = self.PlotFolder:FindFirstChild("Plot")
-	
+	local plotModel: Model = self.PlotFolder:FindFirstChild("Plot")
 	
 	
 	self.PlotFolder:SetAttribute("Owner", owner.UserId)
@@ -64,6 +63,43 @@ end
 -- ACTIONS -- 
 --------------------------------------------------
 
+function Plot:UpdateOwnerDisplay()
+	local owner: Player = self.Owner
+	local plotModel: Model = self.PlotFolder:FindFirstChild("Plot")
+	local plotComponents = plotModel:WaitForChild("Components")
+	
+	-- 
+	local NUMERALS = {"I", "II", "III"}
+	local playerRank, rankTier = "Bronze", 1 -- TODO: read player ranking info
+	local rankColor = ColorSequence.new(
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(209, 49, 0)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(93, 52, 25))
+	)
+	
+	
+	-- billboard
+	local ownerBillboard = plotComponents:WaitForChild("OwnerBillboard")
+	local nameLabel = ownerBillboard.Display.NameLabel
+	local avatarDisplay = ownerBillboard.Display.AvatarDisplay
+	local rankDisplay = ownerBillboard.Display.RankDisplay
+	
+	nameLabel.Text = owner.DisplayName
+	local success, result = pcall(function()
+		return Players:GetUserThumbnailAsync(owner.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+	end)
+	if success and result then
+		avatarDisplay.Image = result
+	else
+		warn("[UpdateOwnerDisplay] Failed to get avatar for", owner, result)
+	end
+	
+
+	rankDisplay.RankLabel.Text = string.format("%s %d", playerRank, NUMERALS[rankTier])
+	rankDisplay.UIGradient.Color = rankColor
+	
+	-- plot sign
+	
+end
 
 function Plot:Destroy()
 	self.Trove:Destroy()

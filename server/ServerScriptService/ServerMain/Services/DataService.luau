@@ -33,11 +33,11 @@ DataService.Signals = {
 	DataLoaded = Signal.new(),
 }
 
-DataService.MainKey = "DEV-01"
+DataService.MainKey = "DEV-02"
 DataService.PurchaseKey = "DEV-PURCHASES-01"
 
 DataService.DATA_CONFIG = {
-	Mock = false, 
+	Mock = true, 
 }
 
 DataService.PlayerStore = ProfileStore.New(DataService.MainKey, PROFILE_TEMPLATE)
@@ -46,7 +46,7 @@ DataService.PurchaseStore = ProfileStore.New(DataService.PurchaseKey, PURCHASE_P
 if RunService:IsStudio() and DataService.DATA_CONFIG.Mock == true then
 	DataService.PlayerStore = DataService.PlayerStore.Mock
 	DataService.PurchaseStore = DataService.PurchaseStore.Mock
-	warn("[WARNING] MOCK PROFILE ACTIVE")
+	warn("[DataService] ⚠️ MOCK PROFILE ACTIVE ⚠️")
 end
 
 DataService.Profiles = {}

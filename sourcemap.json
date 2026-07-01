@@ -1925,6 +1925,14 @@
                       "filePaths": [
                         "c:/Users/jstri/Documents/Development/Projects/MyTower/code/shared/GameAssets/TowerAssets/RoomObjects/CommercialRoom.luau"
                       ]
+                    },
+                    {
+                      "name": "ConstructionRoom",
+                      "className": "ModuleScript",
+                      "pluginManaged": true,
+                      "filePaths": [
+                        "c:/Users/jstri/Documents/Development/Projects/MyTower/code/shared/GameAssets/TowerAssets/RoomObjects/ConstructionRoom.luau"
+                      ]
                     }
                   ]
                 }

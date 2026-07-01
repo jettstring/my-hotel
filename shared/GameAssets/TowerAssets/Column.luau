@@ -12,10 +12,6 @@ local ProfileTemplate = require(ReplicatedStorage.Modules.ProfileTemplate)
 
 local GameAssets = ReplicatedStorage.GameAssets
 
--- Build Assets
-local BuildAssets = GameAssets.BuildAssets
-local BuildUtil = require(BuildAssets.BuildUtil)
-
 -- Tower Assets
 local TowersFolder = workspace.PlayerTowers
 local TowerAssets = GameAssets.TowerAssets
@@ -35,10 +31,10 @@ local LobbyModels = RoomAssets.LobbyModels
 type Profile = ProfileTemplate.ProfileTemplate
 type TowerData = ProfileTemplate.TowerData
 type ColumnData = ProfileTemplate.ColumnData
+type LobbyData = ProfileTemplate.LobbyData
 type ElevatorData = ProfileTemplate.ElevatorData
 type SerializedRoom = ProfileTemplate.SerializedRoom
 
-type Tower = Tower.Tower
 type Lobby = Lobby.Lobby
 type Elevator = Elevator.Elevator
 
@@ -49,7 +45,7 @@ type Elevator = Elevator.Elevator
 local Column = {}
 Column.__index = Column
 
-function Column.new(tower: Tower, columnIndex: number, columnData: ColumnData, services)
+function Column.new(tower, columnIndex: number, columnData: ColumnData, services)
 	local self = setmetatable({}, Column)
 	self.Services = services
 	self.Trove = Trove.new()
@@ -58,11 +54,25 @@ function Column.new(tower: Tower, columnIndex: number, columnData: ColumnData, s
 	self.ColumnIndex = columnIndex
 	self.ColumnData = columnData
 
-	
-	self.Lobby = Lobby.new(self, columnData, services)
-	self.Elevator = Elevator.new(self, columnData, services)
-	
+
+	self:_SetupLobby()
+	self:_SetupElevator()
+
+	print("[Column] Created column:", self)
 	return self
+end
+
+function Column:_SetupLobby()
+	local lobby: Lobby = Lobby.new(self, self.ColumnData, self.Services)
+	if not lobby then warn("[_SetupLobby] Failed to create lobby") return end
+	self.Lobby = lobby
+end
+
+
+function Column:_SetupElevator()
+	local elevator: Elevator = Elevator.new(self, self.ColumnData, self.Services)
+	if not elevator then warn("[_SetupElevator] Failed to create elevator") return end
+	self.Elevator = elevator
 end
 
 export type Column = typeof(setmetatable({} :: {}, Column))

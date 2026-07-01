@@ -12,9 +12,6 @@ local ProfileTemplate = require(ReplicatedStorage.Modules.ProfileTemplate)
 
 local GameAssets = ReplicatedStorage.GameAssets
 
--- Build Assets
-local BuildAssets = GameAssets.BuildAssets
-local BuildUtil = require(BuildAssets.BuildUtil)
 
 -- Tower Assets
 local TowersFolder = workspace.PlayerTowers
@@ -40,6 +37,8 @@ type SerializedRoom = ProfileTemplate.SerializedRoom
 
 type Column = Column.Column
 
+type RoomDefinition = RoomDefinitions.RoomDefinition
+
 --------------------------------------------------
 -- MAIN -- 
 --------------------------------------------------
@@ -62,7 +61,6 @@ function Tower.new(ownerPlayer: Player, TowerFolder: Folder, services: any)
 	self.Rooms = {}       -- { [id]: Room } -- flat table of all rooms
 	self.RoomsByCell = {} -- { [floor]: { [column]: Room } } derived spatial index of rooms
 	self.Columns = {}     -- { [number]: Column }
-
 
 	self:_Setup()
 	if not self.State.Active then
@@ -114,12 +112,15 @@ function Tower:_SetupColumns(towerData: TowerData)
 		self.Columns[columnIndex] = column
 	end
 	
-	
 end
 
 function Tower:_SetupRooms(towerData: TowerData)
-
+	for _, roomEntryData: SerializedRoom in towerData.rooms do
+		self:AddRoom(roomEntryData)
+	end
 end
+
+
 
 function Tower:_SetupSpawn()
 	local owner: Player = self.Owner
@@ -137,7 +138,27 @@ end
 --------------------------------------------------
 
 function Tower:AddRoom(serializedRoom: SerializedRoom)
+	local roomId = serializedRoom.id 
+	local roomDef: RoomDefinition = RoomDefinitions.ByName[serializedRoom.roomDefKey]
+	local roomModule = RoomObjects:FindFirstChild(roomDef.roomType)
 	
+	if self.Rooms[roomId] then
+		warn("[AddRoom] roomID already exists:", roomId, "for", serializedRoom)
+		return
+	end
+	
+	local room = require(roomModule).new(self, serializedRoom, self.Services)
+	if not room then
+		warn("[AddRoom] Failed to create room:", serializedRoom)
+		return
+	end	
+	
+	-- track room
+	self.Rooms[roomId] = room
+	self.RoomsByCell[serializedRoom.floor] = self.RoomsByCell[serializedRoom.floor] or {}
+	self.RoomsByCell[serializedRoom.floor][serializedRoom.column] = room
+	
+	print("[AddRoom] Added room:", roomId, room)
 end
 
 function Tower:UpdateOwnerDisplay()

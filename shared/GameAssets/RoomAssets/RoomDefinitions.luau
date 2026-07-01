@@ -1,7 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameAssets = ReplicatedStorage:WaitForChild("GameAssets")
-local BuildAssets = GameAssets.BuildAssets
 
 export type StockItem = {} -- TODO
 
